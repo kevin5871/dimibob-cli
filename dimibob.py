@@ -131,6 +131,7 @@ def display_bob(date):
     #stdscr.move(0, 0)
     #stdscr.refresh()
 
+# CLI Based Help Script Starting From Here :
 """
 def display_help(stdscr):
     stdscr.clear()
@@ -154,84 +155,7 @@ def display_help(stdscr):
 
     #stdscr.addstr(9, 1, "t - 오늘로 이동")
     ui.textBroser.append("t - Move to today.")
-"""      
-
-def main(stdscr):
-    #stdscr.clear()
-
-    now = QtCore.QDate.currentDate()
-
-    #curses.init_pair(1, 184, 0)
-    #curses.init_pair(2, 123, 0)
-    #curses.init_pair(3, 248, 0)
-
-    display_bob(now)
-    
-    is_help_screen = False
-    is_searching = False
-
-    #cursor = 8
-    """
-    while True:
-        key = stdscr.getkey() 
-        if is_help_screen:
-            if key == ';':
-                is_help_screen = not is_help_screen
-                display_bob(stdscr, now)
-        elif is_searching:
-            if key == '\n':
-                is_searching = False
-                curses.noecho()
-            elif ord(key[0]) == 27:
-                is_searching = False
-                curses.noecho()
-            elif key == 'KEY_BACKSPACE':
-                s = stdscr.getstr(2, cursor - 2, 1)
-
-                if ord(s) < 128:
-                    cursor -= 1
-                    if cursor < 8:
-                        cursor = 8
-                    stdscr.addstr(2, cursor, " ")
-                else:
-                    cursor -= 2
-                    if cursor < 8:
-                        cursor = 8
-                    stdscr.addstr(2, cursor, "  ")
-
-                stdscr.move(2, cursor)
-            else:
-                if ord(key[0]) < 200:
-                    cursor += 1
-                print(cursor, ord(key))
-
-        elif key == 'q':
-            break
-        else:
-            if key == 't':
-                now = datetime.datetime.now()
-                display_bob(stdscr, now)
-            elif key == 'l':
-                now = (now + datetime.timedelta(seconds=86400))
-                display_bob(stdscr, now)
-            elif key == 'h':
-                now = (now - datetime.timedelta(seconds=86400))
-                display_bob(stdscr, now)
-            elif key == 'L':
-                now = (now + datetime.timedelta(seconds=604800))
-                display_bob(stdscr, now)
-            elif key == 'H':
-                now = (now - datetime.timedelta(seconds=604800))
-                display_bob(stdscr, now)
-            elif key == '/':
-                is_searching = True
-                curses.echo()
-                stdscr.addstr(2, 0, "Search: ")
-            elif key == ';':
-                is_help_screen = not is_help_screen
-                display_help(stdscr)
-        """
-
+"""
 
 if __name__ == "__main__":
     import sys
@@ -248,6 +172,9 @@ if __name__ == "__main__":
     MainWindow.show()
     init()
     fetch_bob(6)
+    now = QtCore.QDate.currentDate()
+    display_bob(now)
+    is_searching = False
     #curses.wrapper(main)
     sys.exit(app.exec_())
 
