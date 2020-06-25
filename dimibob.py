@@ -1,10 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 import untitled
-import curses
 import urllib.request, json 
 import datetime
 import os.path
+
+# pip install pyqt5
 
 def right () :
     ui.dateEdit.setDate(ui.dateEdit.date().addDays(1))
