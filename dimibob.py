@@ -1,9 +1,21 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import *
+import untitled
 import curses
 import urllib.request, json 
 import datetime
-import os.path 
+import os.path
 
-# pip install windows-curses
+def right () :
+    ui.dateEdit.setDate(ui.dateEdit.date().addDays(1))
+
+def left () :
+    ui.dateEdit.setDate(ui.dateEdit.date().addDays(-1))
+
+
+def changed() :
+    ui.textBrowser.clear()
+    display_bob(ui.dateEdit.date())
 
 max_day = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
@@ -15,6 +27,8 @@ def init():
     if not os.path.isfile('tmp/bob.db'):
         f = open('tmp/bob.db', 'w')
         f.close()
+    ui.textBrowser.clear()
+    ui.dateEdit.setCalendarPopup(True)
 
 def fetch_bob(month):
     with open('tmp/bob.db', 'r') as f:
@@ -50,9 +64,9 @@ def bob_time(ban, date):
         'lunch': [47400, 47580, 47760, 47940, 48120, 48300],
         'dinner': [69300, 69480, 69660, 69840, 70020, 70200]
     }
-    
-    w = date.isocalendar()[1]
-    d = date.isocalendar()[2]
+    date2 = datetime.date(int(date.toString('yyyy')), int(date.toString('MM')), int(date.toString('dd')))
+    w = date2.isocalendar()[1]
+    d = date2.isocalendar()[2]
 
     # print('w', w, 'd', d)
 
@@ -74,70 +88,90 @@ def bob_time(ban, date):
     return (datetime.timedelta(seconds=lunch_time),
             datetime.timedelta(seconds=dinner_time))
 
-
-def display_bob(stdscr, date):
+def display_bob(date):
     # print(date, type(date))
 
-    stdscr.addstr(0, 0, "Press ';' for help.", curses.color_pair(3))
-    stdscr.addstr(1, 0, "Press 'q' to quit.", curses.color_pair(3))
+    #stdscr.addstr(0, 0, "Press ';' for help.", curses.color_pair(3))
+    #stdscr.addstr(1, 0, "Press 'q' to quit.", curses.color_pair(3))
+    #ui.textBrowser.setPlainText("Press ';' for help.")
+    #ui.textBrowser.append("Press 'q' to quit.")
 
-    date_str = date.year * 10000 + date.month * 100 + date.day
-    stdscr.addstr(1, 30, '{}년 {:0>2}월 {:0>2}일'.format(date.year, date.month, date.day))
+    #date_str = date.year * 10000 + date.month * 100 + date.day
+    date_str = int(date.toString('yyyyMMdd'))
+    #print(date_str)
+    #stdscr.addstr(1, 30, '{}년 {:0>2}월 {:0>2}일'.format(date.year, date.month, date.day))
+    ui.textBrowser.append("{}년 {:0>2}월 {:0>2}일".format(date.toString('yyyy'), date.toString('MM'), date.toString('dd')))
     
-    for i in range(3, 20):
-        stdscr.addstr(i, 0, ' ' * 100)
     if date_str in bob_data:
         col = -24
         for k in eng2kor:
             line = 3
             col += 25
-            stdscr.addstr(line, col, eng2kor[k] + ' ', curses.color_pair(1))
+            #stdscr.addstr(line, col, eng2kor[k] + ' ', curses.color_pair(1))
+            ui.textBrowser.append(eng2kor[k] + ' ')
             time = bob_time(6, date)
             if k == 'lunch':
-                stdscr.addstr(line, col + 5, str(time[0]), curses.color_pair(1))
+                #stdscr.addstr(line, col + 5, str(time[0]), curses.color_pair(1))
+                ui.textBrowser.append(str(time[0]))
             elif k == 'dinner':
-                stdscr.addstr(line, col + 5, str(time[1]), curses.color_pair(1))
+                #stdscr.addstr(line, col + 5, str(time[1]), curses.color_pair(1))
+                ui.textBrowser.append(str(time[1]))
             for j in bob_data[date_str][k].split('/'):
                 line += 1
                 if line < 40:
-                    stdscr.addstr(line, col + 1, j + '\n')
+                    #stdscr.addstr(line, col + 1, j + '\n')
+                    ui.textBrowser.append(j + '\n')
     else:
-        stdscr.addstr(4, 28, '급식 정보가 없습니다')
-    stdscr.move(0, 0)
-    stdscr.refresh()
+        #stdscr.addstr(4, 28, '급식 정보가 없습니다')
+        ui.textBrowser.append('급식 정보가 없습니다.')
+    cursor = ui.textBrowser.textCursor()
+    cursor.setPosition(0)
+    ui.textBrowser.setTextCursor(cursor)
 
+    #stdscr.move(0, 0)
+    #stdscr.refresh()
 
+"""
 def display_help(stdscr):
     stdscr.clear()
 
-    stdscr.addstr(0, 0, "Press ';' for bob.", curses.color_pair(3))
-    stdscr.addstr(1, 0, "Press 'q' to quit.", curses.color_pair(3))
+    #stdscr.addstr(0, 0, "Press ';' for bob.", curses.color_pair(3))
+    #stdscr.addstr(1, 0, "Press 'q' to quit.", curses.color_pair(3))
+    ui.textBrowser.setPlainText("Press ';' for bob.")
+    ui.textBrowser.append("Press 'q' to quit.")
 
-    stdscr.addstr(3, 1, "H - 1주 전으로 이동")
-    stdscr.addstr(4, 1, "h - 1일 전으로 이동")
+    #stdscr.addstr(3, 1, "H - 1주 전으로 이동")
+    #stdscr.addstr(4, 1, "h - 1일 전으로 이동")
+    ui.textBrowser.append("H - Move to One week earlier.")
+    ui.textBrowser.append("h - Move to One day earlier.")
 
-    stdscr.addstr(6, 1, "L - 1주 후로 이동")
-    stdscr.addstr(7, 1, "l - 1일 후로 이동")
 
-    stdscr.addstr(9, 1, "t - 오늘로 이동")
-        
+    #stdscr.addstr(6, 1, "L - 1주 후로 이동")
+    #stdscr.addstr(7, 1, "l - 1일 후로 이동")
+    ui.textBrowser.append("L - Move to One week forward.")
+    ui.textBrowser.append("l - Move to One day forward.")
+
+
+    #stdscr.addstr(9, 1, "t - 오늘로 이동")
+    ui.textBroser.append("t - Move to today.")
+"""      
 
 def main(stdscr):
-    stdscr.clear()
+    #stdscr.clear()
 
-    now = datetime.datetime.now()
+    now = QtCore.QDate.currentDate()
 
-    curses.init_pair(1, 184, 0)
-    curses.init_pair(2, 123, 0)
-    curses.init_pair(3, 248, 0)
+    #curses.init_pair(1, 184, 0)
+    #curses.init_pair(2, 123, 0)
+    #curses.init_pair(3, 248, 0)
 
-    display_bob(stdscr, now)
+    display_bob(now)
     
     is_help_screen = False
     is_searching = False
 
-    cursor = 8
-
+    #cursor = 8
+    """
     while True:
         key = stdscr.getkey() 
         if is_help_screen:
@@ -196,8 +230,24 @@ def main(stdscr):
             elif key == ';':
                 is_help_screen = not is_help_screen
                 display_help(stdscr)
+        """
 
 
-init()
-fetch_bob(6)
-curses.wrapper(main)
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = untitled.Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    ui.dateEdit.setDate(QDate.currentDate())
+    ui.dateEdit.setMinimumDate(QDate(2000, 1, 1))
+    ui.dateEdit.setMaximumDate(QDate(2050, 12, 31))
+    ui.pushButton.clicked.connect(right)
+    ui.pushButton_2.clicked.connect(left)
+    ui.dateEdit.dateChanged.connect(changed)
+    MainWindow.show()
+    init()
+    fetch_bob(6)
+    #curses.wrapper(main)
+    sys.exit(app.exec_())
+
